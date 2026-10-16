@@ -1,0 +1,1006 @@
+<title>OpenAI Math Blitz 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,600;0,8..60,700;1,8..60,300&family=Inter:wght@400;500;600&display=swap">
+
+<style>
+/* === DESIGN TOKENS ===
+   Layout: sticky header + two-pane (timeline left, matrix full-width below)
+   Type: Source Serif 4 display, IBM Plex Mono labels/data, Inter utility
+   Palette: slate-navy base, amber verified, coral claimed, graphite neutral */
+
+:root {
+  --bg:          #F7F6F2;
+  --bg-card:     #FFFFFF;
+  --bg-stripe:   #F0EFE9;
+  --fg:          #1A1A24;
+  --fg-mid:      #4A4A5A;
+  --fg-dim:      #8A8A9A;
+  --border:      #D8D7CF;
+  --accent-nav:  #1C2340;
+
+  --verified:    #B07D2A;
+  --verified-bg: #FFF8EA;
+  --claimed:     #C0503A;
+  --claimed-bg:  #FFF1EE;
+  --partial:     #2A6E7A;
+  --partial-bg:  #EDF6F8;
+  --disproof:    #5A3E8A;
+  --disproof-bg: #F3EFF8;
+
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+  --font-ui:      'Inter', system-ui, sans-serif;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:          #0F1018;
+    --bg-card:     #1A1B28;
+    --bg-stripe:   #15161F;
+    --fg:          #E8E6DF;
+    --fg-mid:      #9A98A8;
+    --fg-dim:      #5A5868;
+    --border:      #2A2C3A;
+    --accent-nav:  #0A0C18;
+
+    --verified:    #D4A543;
+    --verified-bg: #221C09;
+    --claimed:     #E06B55;
+    --claimed-bg:  #200E0A;
+    --partial:     #4AABB8;
+    --partial-bg:  #091820;
+    --disproof:    #9A7BD0;
+    --disproof-bg: #120E20;
+
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:          #0F1018;
+  --bg-card:     #1A1B28;
+  --bg-stripe:   #15161F;
+  --fg:          #E8E6DF;
+  --fg-mid:      #9A98A8;
+  --fg-dim:      #5A5868;
+  --border:      #2A2C3A;
+  --accent-nav:  #0A0C18;
+
+  --verified:    #D4A543;
+  --verified-bg: #221C09;
+  --claimed:     #E06B55;
+  --claimed-bg:  #200E0A;
+  --partial:     #4AABB8;
+  --partial-bg:  #091820;
+  --disproof:    #9A7BD0;
+  --disproof-bg: #120E20;
+
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+
+/* ── NAV ── */
+nav {
+  background: var(--accent-nav);
+  color: #fff;
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 48px;
+  margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+}
+.nav-brand {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+}
+.nav-brand strong { color: #fff; }
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.nav-tab {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.5);
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: background .15s, color .15s;
+}
+.nav-tab:hover, .nav-tab.active {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+.theme-toggle {
+  background: rgba(255,255,255,.1);
+  border: none;
+  color: rgba(255,255,255,.6);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: background .15s;
+}
+.theme-toggle:hover { background: rgba(255,255,255,.18); color: #fff; }
+
+/* ── MAIN ── */
+.page-section { display: none; padding-block: 32px 48px; max-width: 1100px; margin: 0 auto; }
+.page-section.active { display: block; }
+
+/* ── HERO ── */
+.hero {
+  padding-block: 48px 36px;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 12px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 4.5vw, 46px);
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+  margin-bottom: 16px;
+  letter-spacing: -.02em;
+}
+.hero h1 em { font-style: italic; font-weight: 300; }
+.hero-sub {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--fg-mid);
+  max-width: 680px;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+}
+.stat { display: flex; flex-direction: column; }
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.stat-lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+.legend-lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-right: 4px;
+}
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.badge-V  { background: var(--verified-bg); color: var(--verified); }
+.badge-C  { background: var(--claimed-bg);  color: var(--claimed); }
+.badge-P  { background: var(--partial-bg);  color: var(--partial); }
+.badge-D  { background: var(--disproof-bg); color: var(--disproof); }
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: 8px; bottom: 8px;
+  width: 2px;
+  background: var(--border);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 32px;
+}
+.tl-dot {
+  position: absolute;
+  left: -25px; top: 5px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--fg-dim);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.tl-dot.milestone { background: var(--verified); box-shadow: 0 0 0 1px var(--verified); }
+.tl-date {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 4px;
+}
+.tl-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.tl-body {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--fg-mid);
+  line-height: 1.55;
+}
+.tl-tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ── MATRIX TABLE ── */
+.section-head {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.section-desc {
+  font-family: var(--font-display);
+  font-weight: 300;
+  color: var(--fg-mid);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.table-wrap { overflow-x: auto; margin-bottom: 36px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 680px;
+}
+thead th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:nth-child(even) td { background: var(--bg-stripe); }
+tbody tr:hover td { background: var(--bg-card); }
+td {
+  padding: 10px 12px;
+  vertical-align: top;
+  background: var(--bg);
+  transition: background .1s;
+}
+.td-entry {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.td-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+.td-sub {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--fg-mid);
+  margin-top: 2px;
+}
+.td-field {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-mid);
+  white-space: nowrap;
+}
+.td-age {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--fg-mid);
+  white-space: nowrap;
+}
+.td-status { white-space: nowrap; }
+.td-lean {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+.lean-yes { color: var(--verified); }
+.lean-no  { color: var(--fg-dim); }
+.td-significance {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 12.5px;
+  color: var(--fg-mid);
+  min-width: 0;
+}
+
+/* Domain groups */
+.domain-row td {
+  background: var(--bg-card) !important;
+  padding: 6px 12px;
+}
+.domain-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+/* ── SCOPE BOX ── */
+.scope-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.scope-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+}
+.scope-card .val {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.scope-card .lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+.scope-card .note {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--fg-mid);
+  margin-top: 5px;
+}
+
+/* controversy box */
+.controversy {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--claimed);
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-top: 24px;
+}
+.controversy h3 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--claimed);
+  margin-bottom: 10px;
+}
+.controversy ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.controversy li {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--fg-mid);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.45;
+}
+.controversy li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--claimed);
+}
+
+@media (max-width: 600px) {
+  .hero-stats { gap: 10px 20px; }
+  .nav-tabs { display: none; }
+  .legend { display: none; }
+}
+</style>
+
+<!-- HERO (outside sections, always visible) -->
+<div class="hero">
+  <div class="hero-eyebrow">OpenAI · Mathematics · 2026 Record</div>
+  <h1>722 Papers, <em>One Unnamed Model,</em><br>One Day</h1>
+  <p class="hero-sub">Chronicle, itemized log, and proof-status matrix for OpenAI's October 6, 2026 mathematical manuscript release — the largest single-day AI research output in mathematics history.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-val">722</span><span class="stat-lbl">Manuscripts</span></div>
+    <div class="stat"><span class="stat-val">372</span><span class="stat-lbl">Result Families</span></div>
+    <div class="stat"><span class="stat-val">17</span><span class="stat-lbl">Mathematical Fields</span></div>
+    <div class="stat"><span class="stat-val">162</span><span class="stat-lbl">Lean-Verified</span></div>
+    <div class="stat"><span class="stat-val">~4,000</span><span class="stat-lbl">Problems Posed</span></div>
+    <div class="stat"><span class="stat-val">$2,000</span><span class="stat-lbl">Est. Compute Cost</span></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand"><strong>OAI·MATH</strong> · OCT 2026</span>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('chronicle')">Chronicle</button>
+    <button class="nav-tab" onclick="showTab('matrix')">Proof Matrix</button>
+    <button class="nav-tab" onclick="showTab('scope')">Scope & Context</button>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">◐</button>
+</nav>
+
+<!-- ═══════════ TAB 1: CHRONICLE ═══════════ -->
+<div id="tab-chronicle" class="page-section active">
+  <div class="section-head">Event Log</div>
+  <p class="section-desc">Running record from the Erdős disproof through the October 6 mass release.</p>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-date">May 2026</div>
+      <div class="tl-title">Erdős Unit Distance Conjecture Disproved</div>
+      <div class="tl-body">An internal OpenAI reasoning model disproved Paul Erdős's 1946 planar unit distance conjecture — a discrete geometry problem about how many times a unit distance can appear among <em>n</em> points. The model found the proof via algebraic number theory, class field towers, and Golod-Shafarevich theory. Princeton mathematician Will Sawin verified the construction's compounding behavior at scale. OpenAI did not design the system specifically for this problem; it used a general-purpose reasoning model. External mathematicians subsequently checked and verified the proof.</div>
+      <div class="tl-tags"><span class="badge badge-V">Verified</span> <span class="badge badge-D">Disproof</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot milestone"></div>
+      <div class="tl-date">August 1, 2026</div>
+      <div class="tl-title">Ten Long-Open Problems — First Batch</div>
+      <div class="tl-body">OpenAI published ten results on problems open for at least a decade, each with machine-checkable Lean proofs and model reasoning narrations. Included: new upper bounds on sphere packing, a disproof of Connes's rigidity conjecture, and a construction of non-sofic groups. Chief scientist Jakub Pachocki described it as a "side-sprint." This was OpenAI's first structured release of AI-originated mathematical results, attributed explicitly to the AI rather than to human authors.</div>
+      <div class="tl-tags"><span class="badge badge-V">Lean Verified</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-date">September 8, 2026</div>
+      <div class="tl-title">Navier-Stokes Existence & Smoothness Announced</div>
+      <div class="tl-body">OpenAI announced a solution to the existence and smoothness problem for the Navier–Stokes equations — one of the Clay Mathematics Institute's seven Millennium Prize Problems ($1M each). The mathematical community had not yet verified the proof by the October 6 release. Mathematicians criticized OpenAI for announcing via blog post and social media rather than via a formal paper, making verification harder and leaving prior researchers' contributions uncredited.</div>
+      <div class="tl-tags"><span class="badge badge-C">Claimed — Not Yet Peer Reviewed</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-date">September 21, 2026</div>
+      <div class="tl-title">100+ Long-Standing Problems Resolved; Advisory Group Formed</div>
+      <div class="tl-body">OpenAI announced its internal model had resolved more than 100 long-standing open problems. Simultaneously, OpenAI announced an independent advisory group hosted at the Institute for Advanced Study (IAS). A group of 25 Fields Medalists — including Terence Tao and Peter Scholze — published a letter opposing the race by AI labs to solve major open problems without community coordination.</div>
+      <div class="tl-tags"><span class="badge badge-C">Unverified at Time</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-date">September 29, 2026</div>
+      <div class="tl-title">AGMAI Issues Guidelines — OpenAI Already in Violation</div>
+      <div class="tl-body">The Advisory Group on Mathematics and Artificial Intelligence (AGMAI) published recommendations opening with a request that labs "stop testing advanced mathematical problems on proprietary models." OpenAI's own repository README states that testing on open research problems is "standard practice" in model development. OpenAI's October 6 release violated this guideline before it was a week old.</div>
+      <div class="tl-tags"></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot milestone"></div>
+      <div class="tl-date">October 6, 2026</div>
+      <div class="tl-title">722 Manuscripts Published — github.com/openai/math</div>
+      <div class="tl-body">OpenAI published the repository <code style="font-family:var(--font-mono);font-size:12px;background:var(--bg-stripe);padding:1px 5px;border-radius:2px">openai/math</code> on GitHub: 722 manuscripts in 372 result families across 17 mathematical disciplines, all produced by an unnamed internal frontier model. Supporting materials included PDF preprints, Lean formalizations for 162 manuscripts (22.4%), and 10 abridged reasoning summaries. Average compute per result: ~3 hours of ChatGPT Pro Thinking mode. Total estimated compute cost: ~$2,000 at Sol API rates. The model was posed approximately 4,000 open problems.</div>
+      <div class="tl-tags"><span class="badge badge-V">162 Lean-Verified</span> <span class="badge badge-C">560 Claimed Only</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-date">October 7, 2026</div>
+      <div class="tl-title">Three Manuscripts Withdrawn; Catalogue Drops to 719</div>
+      <div class="tl-body">A sign error invalidated one argument; two dependent papers fell with it. OpenAI withdrew all three within 24 hours of publication, retaining prior versions per its announced correction policy. Mathematician Dana Moshkovitz (who worked for years toward the Unique Games Conjecture) reported that the claimed UGC proof was "so badly written she could not read it without AI help." OpenAI acknowledged that many results are not yet understood by its own mathematicians.</div>
+      <div class="tl-tags"><span class="badge badge-D">3 Withdrawn</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════ TAB 2: MATRIX ═══════════ -->
+<div id="tab-matrix" class="page-section">
+  <div class="section-head">Proof Status Matrix</div>
+  <div class="section-title">Named Claims by Problem</div>
+  <p class="section-desc">All named mathematical problems identified in the October 6, 2026 release, organized by field. Status reflects OpenAI's own designation; most are unverified by the mathematical community as of October 15, 2026.</p>
+
+  <div class="legend">
+    <span class="legend-lbl">Status key:</span>
+    <span class="badge badge-V">Lean Verified</span>
+    <span class="badge badge-C">Claimed</span>
+    <span class="badge badge-P">Partial Result</span>
+    <span class="badge badge-D">Disproof / Counterexample</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Entry</th>
+          <th>Problem / Conjecture</th>
+          <th>Field</th>
+          <th style="text-align:right">Age (yrs)</th>
+          <th>Status</th>
+          <th style="text-align:center">Lean</th>
+          <th>Significance / Claim</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- NUMBER THEORY -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Number Theory — 31 result families</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">003</td>
+          <td><div class="td-name">Quasi-Riemann Hypothesis</div><div class="td-sub">Zero-free region Re(s) &gt; 7/8 for all Dirichlet L-functions</div></td>
+          <td class="td-field">Number Theory</td>
+          <td class="td-age">167</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Strongest proven zero-free region ever established. Implies tighter prime distribution bounds. Does not prove the full Riemann Hypothesis (zeros on Re = ½) but advances the frontier beyond a century of stagnation.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">003b</td>
+          <td><div class="td-name">Companion Zero-Free Region</div><div class="td-sub">Alternative proof of Re(s) &gt; 11/12</div></td>
+          <td class="td-field">Number Theory</td>
+          <td class="td-age">167</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Same family as 003; different proof technique achieving a slightly weaker but independently established bound.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">002+006</td>
+          <td><div class="td-name">BSD Conjecture (Partial)</div><div class="td-sub">Full BSD formula for "almost all" quadratic twists of every rational elliptic curve</div></td>
+          <td class="td-field">Number Theory / Arithmetic Geometry</td>
+          <td class="td-age">63</td>
+          <td class="td-status"><span class="badge badge-P">Partial Result</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">BSD is a Millennium Prize Problem ($1M). Claim covers a dense but not complete set of cases. No Lean formalization. Community has not verified.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">006</td>
+          <td><div class="td-name">Goldfeld Conjecture</div><div class="td-sub">Average rank of elliptic curves over ℚ is ½</div></td>
+          <td class="td-field">Number Theory</td>
+          <td class="td-age">47</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Falls out of the BSD partial result (Entry 006). Would settle a foundational question in the arithmetic of elliptic curves.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">004</td>
+          <td><div class="td-name">Hilbert's 10th Problem (over ℚ)</div><div class="td-sub">No algorithm decides rational solutions to polynomial Diophantine equations</div></td>
+          <td class="td-field">Number Theory / Logic</td>
+          <td class="td-age">126</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Integer case settled (Matiyasevich, 1970). Rational case open for 56 years since. OpenAI claims the answer is again negative. No formalization.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Catalan's Constant Irrationality</div><div class="td-sub">G = 1 − 1/9 + 1/25 − 1/49 + … is irrational</div></td>
+          <td class="td-field">Number Theory</td>
+          <td class="td-age">182</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">One of the oldest unresolved irrationality questions. The constant appears throughout physics and combinatorics. Lean-checked.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Irrationality Measure of π</div><div class="td-sub">Exact irrationality exponent μ(π) = 2</div></td>
+          <td class="td-field">Number Theory</td>
+          <td class="td-age">~100+</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Previous best bound ~7.1 (Salikhov, 2008). μ = 2 means π is as "well-approximated by rationals" as a typical irrational — the optimal theoretical value. Lean-checked. Also resolves Flint Hills series convergence (recreational math open problem).</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Flint Hills Series</div><div class="td-sub">Convergence of Σ 1/(n³ sin²n)</div></td>
+          <td class="td-field">Number Theory / Analysis</td>
+          <td class="td-age">~25</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Convergence depends on μ(π). Falls out of the irrationality measure result above.</td>
+        </tr>
+
+        <!-- ALGEBRAIC GEOMETRY -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Algebraic &amp; Complex Geometry — 36 result families</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">032</td>
+          <td><div class="td-name">Hodge Conjecture for CM Abelian Varieties</div><div class="td-sub">Rational Hodge classes on complex CM abelian varieties are algebraic</div></td>
+          <td class="td-field">Algebraic Geometry</td>
+          <td class="td-age">75</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Hodge Conjecture is a Millennium Prize Problem. Claim is for a special (highly symmetric) subclass of cases — not the full conjecture. Combined with Milne's prior theorems, OpenAI claims this also implies the Tate conjecture for all abelian varieties over finite fields. README explicitly flags non-standard process; no formalization. Sam Altman listed as one of four highlighted results.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">054</td>
+          <td><div class="td-name">Kuznetsov's Conjecture (Cubic Fourfolds)</div><div class="td-sub">Counterexample: a cubic fourfold satisfying Kuznetsov's categorical criterion yet not rational</div></td>
+          <td class="td-field">Algebraic Geometry</td>
+          <td class="td-age">~20</td>
+          <td class="td-status"><span class="badge badge-D">Disproof</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Kuznetsov proposed a category-theoretic criterion for rationality of cubic fourfolds. OpenAI constructs an explicit counterexample, overturning the conjecture.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">069</td>
+          <td><div class="td-name">Quantum Geometric Langlands (Irrational Parameters)</div><div class="td-sub">Geometric Langlands correspondence in its quantum deformation at irrational parameters</div></td>
+          <td class="td-field">Algebraic Geometry / Representation Theory</td>
+          <td class="td-age">~15</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Extends Gaitsgory et al.'s 2024 proof (~1,000 pages) of the classical geometric Langlands conjecture to its "quantum" version. Irrational-parameter case considered substantially harder.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">008</td>
+          <td><div class="td-name">Deligne–Drinfeld Conjecture</div><div class="td-sub">Structure of the Grothendieck–Teichmüller Lie algebra</div></td>
+          <td class="td-field">Algebraic Geometry</td>
+          <td class="td-age">~40</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Lean-checked. Concerns fundamental symmetries underlying deformation theory and multiple zeta values.</td>
+        </tr>
+
+        <!-- THEORETICAL CS -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Theoretical Computer Science — 40 result families (largest category)</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">102</td>
+          <td><div class="td-name">Unique Games Conjecture</div><div class="td-sub">Khot's 2002 conjecture: approximate unique games is NP-hard</div></td>
+          <td class="td-field">Computational Complexity</td>
+          <td class="td-age">24</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">If true, makes a long list of optimization problems (including Max Cut) NP-hard to approximate beyond certain thresholds. Central open problem in complexity theory for two decades. Lean-checked. Sam Altman listed as one of four highlighted results. Dana Moshkovitz (long-time contributor toward UGC) found the proof "so badly written she could not read it without AI help."</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Kaplansky Direct-Finiteness (char 2)</div><div class="td-sub">Counterexample to direct-finiteness of group rings in characteristic 2</div></td>
+          <td class="td-field">Algebra (Group Rings)</td>
+          <td class="td-age">~70</td>
+          <td class="td-status"><span class="badge badge-D">Disproof</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Lean-checked. Kaplansky conjectured group rings are directly finite (no one-sided unit that isn't two-sided). Counterexample overturns this for characteristic 2. Separate from the Kadison-Kaplansky result below.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Kadison-Kaplansky Projection Conjecture</div><div class="td-sub">Counterexample: idempotents in group C*-algebras</div></td>
+          <td class="td-field">Functional Analysis / Operator Algebras</td>
+          <td class="td-age">~70</td>
+          <td class="td-status"><span class="badge badge-D">Disproof</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Conjectured that reduced group C*-algebras of torsion-free groups have no non-trivial projections. Counterexample found.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Hadwiger's Conjecture</div><div class="td-sub">Graph coloring and complete minors: counterexample found</div></td>
+          <td class="td-field">Graph Theory / Combinatorics</td>
+          <td class="td-age">85</td>
+          <td class="td-status"><span class="badge badge-D">Disproof</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">One of the most famous open problems in graph theory. Conjectured that every k-chromatic graph contains K_k as a minor. Counterexample would be highly significant.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Seymour's Second Neighborhood Conjecture</div><div class="td-sub">Every vertex in a directed graph has a vertex with at least as many 2nd neighbors</div></td>
+          <td class="td-field">Graph Theory</td>
+          <td class="td-age">~45</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Long-open combinatorics problem. Proof claimed.</td>
+        </tr>
+
+        <!-- ANALYSIS & GEOMETRY -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Analysis &amp; Geometry</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">074</td>
+          <td><div class="td-name">Kakeya Maximal Conjecture (3D &amp; 4D)</div><div class="td-sub">3D maximal function bound + 4D dimension conjecture</div></td>
+          <td class="td-field">Harmonic Analysis / Geometric Measure Theory</td>
+          <td class="td-age">107</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Wang &amp; Zahl proved the 3D Kakeya set conjecture (Fields Medal, July 2026). OpenAI claims to extend this to the stronger 3D maximal version and the 4D dimension conjecture. No formalization. Flagged as one of the results most urgently needing expert review.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">087</td>
+          <td><div class="td-name">Mahler Conjecture (Symmetric &amp; General)</div><div class="td-sub">Minimum volume product of a convex body and its polar dual, all dimensions</div></td>
+          <td class="td-field">Convex Geometry</td>
+          <td class="td-age">87</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">3D symmetric case proved by Iriyeh-Shibata 2020. OpenAI claims to solve both symmetric and general (asymmetric) versions simultaneously in all dimensions, with full characterization of equality cases. Lean-checked.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">071</td>
+          <td><div class="td-name">Koebe Circle Domain Conjecture (Existence)</div><div class="td-sub">Every plane domain conformally equivalent to a circle domain</div></td>
+          <td class="td-field">Complex Analysis</td>
+          <td class="td-age">118</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Paul Koebe's 1908 conjecture. OpenAI proves the existence part (that the conformal map to a circle domain exists). Lean-checked.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Relativistic Vlasov–Maxwell Global Regularity</div><div class="td-sub">Large-data global regularity for the relativistic Vlasov–Maxwell system</div></td>
+          <td class="td-field">Mathematical Physics / PDE</td>
+          <td class="td-age">~40</td>
+          <td class="td-status"><span class="badge badge-C">Claimed</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Concerns the long-time behavior of charged particle distributions interacting with electromagnetic fields — a hard open problem in kinetic theory.</td>
+        </tr>
+
+        <!-- ALGEBRA / GROUP THEORY -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Algebra &amp; Group Theory — 14 result families</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">287</td>
+          <td><div class="td-name">Free Group Factor Isomorphism Problem</div><div class="td-sub">Are the free group von Neumann factors L(𝔽_m) and L(𝔽_n) isomorphic for m ≠ n?</div></td>
+          <td class="td-field">Operator Algebras / Functional Analysis</td>
+          <td class="td-age">~75</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Murray-von Neumann problem. OpenAI claims a resolution with Lean verification. Sam Altman listed as one of four highlighted results. One of the central open questions in operator algebra theory.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Connes's Rigidity Conjecture</div><div class="td-sub">Disproof: group von Neumann algebras are not always as rigid as conjectured</div></td>
+          <td class="td-field">Operator Algebras</td>
+          <td class="td-age">~45</td>
+          <td class="td-status"><span class="badge badge-D">Disproof</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Announced in the August 1 batch with Lean verification. Connes conjectured that icc property-T groups are distinguished by their von Neumann algebras. Disproved.</td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Non-Sofic Groups</div><div class="td-sub">Explicit construction of groups that are not sofic</div></td>
+          <td class="td-field">Group Theory</td>
+          <td class="td-age">~25</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Announced August 1. Sofic groups generalize amenable and residually finite groups; it was unknown whether all groups are sofic. Lean-checked.</td>
+        </tr>
+
+        <!-- MATHEMATICAL PHYSICS -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Mathematical Physics — 25 result families</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Navier-Stokes Existence &amp; Smoothness</div><div class="td-sub">Global smooth solutions to 3D incompressible Navier-Stokes</div></td>
+          <td class="td-field">PDE / Mathematical Physics</td>
+          <td class="td-age">~170</td>
+          <td class="td-status"><span class="badge badge-C">Claimed — Unverified</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">Millennium Prize Problem ($1M). Announced September 8, 2026. Not yet verified by mathematical community as of Oct 15. No Lean formalization. Mathematicians criticized the blog-post announcement format.</td>
+        </tr>
+
+        <!-- SPHERE PACKING -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Geometry / Combinatorics</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Sphere Packing Upper Bounds</div><div class="td-sub">New upper bounds on sphere packing density in high dimensions</div></td>
+          <td class="td-field">Geometry / Combinatorics</td>
+          <td class="td-age">~80</td>
+          <td class="td-status"><span class="badge badge-V">Lean Verified</span></td>
+          <td class="td-lean lean-yes">✓</td>
+          <td class="td-significance">Announced August 1 with Lean verification. Improves on known bounds for how densely identical spheres can pack in high-dimensional space.</td>
+        </tr>
+
+        <!-- ERDOS (pre-release) -->
+        <tr class="domain-row">
+          <td colspan="7"><span class="domain-label">Pre-Release — May 2026</span></td>
+        </tr>
+        <tr>
+          <td class="td-entry">—</td>
+          <td><div class="td-name">Erdős Unit Distance Conjecture</div><div class="td-sub">Disproof: unit distances among n points in the plane can exceed the conjectured Θ(n^{1+c}) bound</div></td>
+          <td class="td-field">Discrete Geometry</td>
+          <td class="td-age">80</td>
+          <td class="td-status"><span class="badge badge-D">Disproof — Ext. Verified</span></td>
+          <td class="td-lean lean-no">—</td>
+          <td class="td-significance">External mathematicians checked and verified the proof. Used algebraic number theory, class field towers, and Golod-Shafarevich theory. Princeton's Will Sawin confirmed the construction's behavior at scale.</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 3: SCOPE ═══════════ -->
+<div id="tab-scope" class="page-section">
+  <div class="section-head">Operational Scope &amp; Context</div>
+  <div class="section-title">Scale, Compute, and Verification</div>
+  <p class="section-desc">What the numbers mean, what remains unverified, and where the mathematical community pushed back.</p>
+
+  <div class="scope-grid">
+    <div class="scope-card">
+      <div class="val">722</div>
+      <div class="lbl">Manuscripts Published</div>
+      <div class="note">719 after 3 withdrawn Oct 7 due to sign error.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">372</div>
+      <div class="lbl">Result Families</div>
+      <div class="note">Avg 1.94 manuscripts/family; most families have 1.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">~4,000</div>
+      <div class="lbl">Problems Posed</div>
+      <div class="note">Manuscripts represent 18% of problems posed; ~82% yielded no publishable result.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">162</div>
+      <div class="lbl">Lean-Formalized</div>
+      <div class="note">22.4% of 722 manuscripts. OpenAI committed to adding more.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">~3 hrs</div>
+      <div class="lbl">Avg Compute / Result</div>
+      <div class="note">ChatGPT Pro Thinking mode equivalent per published result.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">~$2,000</div>
+      <div class="lbl">Total Compute Cost</div>
+      <div class="note">At Sol API rates, covering all 722 manuscripts.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">17</div>
+      <div class="lbl">Mathematical Fields</div>
+      <div class="note">TCS (40 families) is the largest single category.</div>
+    </div>
+    <div class="scope-card">
+      <div class="val">0</div>
+      <div class="lbl">Millennium Problems Solved</div>
+      <div class="note">Navier-Stokes claimed but not verified. BSD partial. Hodge partial. 5 of 7 untouched.</div>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:8px">Controversy Log</div>
+  <div class="controversy">
+    <h3>Mathematical Community Objections</h3>
+    <ul>
+      <li>AGMAI (advisory group hosted at IAS, which OpenAI itself convened) asked labs on September 29 to "stop testing advanced mathematical problems on proprietary models." OpenAI published 722 manuscripts eight days later.</li>
+      <li>25 Fields Medalists including Terence Tao and Peter Scholze published a letter opposing the AI-lab race to solve open problems without community coordination (September 2026).</li>
+      <li>Mathematicians criticized OpenAI for announcing results — including Navier-Stokes — via blog posts and social media rather than papers, making verification harder and leaving prior researchers' contributions uncredited.</li>
+      <li>Dana Moshkovitz (years of work toward UGC) reported the claimed Unique Games proof was "so badly written she could not read it without AI help." OpenAI acknowledged many results are not yet understood by its own mathematicians.</li>
+      <li>OpenAI's earlier October 2025 claim that "GPT-5 solved 10 Erdős problems" was retracted after the model had simply retrieved known results from the internet. Kevin Weil's post was deleted.</li>
+      <li>Credit and attribution: open problems are how graduate students build careers. Mass AI-generated output preempts researchers mid-project without credit.</li>
+      <li>Only 162 of 722 manuscripts (22.4%) have Lean-verified main results. The remaining 560 are claims in ordinary prose that the community must read and referee.</li>
+    </ul>
+  </div>
+
+  <div style="margin-top:28px">
+    <div class="section-head">What "Lean Verified" Means vs. "Peer Reviewed"</div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:4px">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--verified);margin-bottom:8px">Lean Formalization ✓</div>
+        <div style="font-family:var(--font-display);font-weight:300;font-size:13.5px;color:var(--fg-mid);line-height:1.5">A computer has checked that each logical step follows from its premises according to formal proof rules. This rules out a large class of errors — wrong implications, missing cases. It does not verify that the premises themselves are the right ones, that the theorem statement encodes the intended mathematical object, or that the argument is original rather than a retrieval of known results.</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--claimed);margin-bottom:8px">Peer Review</div>
+        <div style="font-family:var(--font-display);font-weight:300;font-size:13.5px;color:var(--fg-mid);line-height:1.5">Domain experts read the argument in full, check that the theorem statement matches the intended problem, verify that the proof approach is sound, cross-check against existing literature, assess novelty and significance, and identify gaps a machine would not catch. None of the 722 manuscripts have completed peer review. Most have not yet been read in full by any human mathematician.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1100px;margin:0 auto;padding-block:24px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center">
+  <span style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim)">Sources:</span>
+  <a href="https://github.com/openai/math" style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);text-decoration:none" target="_blank">github.com/openai/math</a>
+  <a href="https://letsdatascience.com/blog/openai-posted-722-ai-written-math-papers-kept-the-prompts" style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);text-decoration:none" target="_blank">LetsDatScience</a>
+  <a href="https://yourstory.com/ai-story/openai-ai-open-maths-problems-solved" style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);text-decoration:none" target="_blank">YourStory</a>
+  <a href="https://eu.36kr.com/en/p/4015466508816520" style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);text-decoration:none" target="_blank">36kr · Top 30 Problems</a>
+  <a href="https://kingy.ai/?p=932457" style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);text-decoration:none" target="_blank">Kingy.ai · Full Analysis</a>
+  <a href="https://aiweekly.co/alerts/openai-posts-722-ai-math-preprints-mathematicians-balk" style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);text-decoration:none" target="_blank">Nature via AIWeekly</a>
+  <span style="font-family:var(--font-mono);font-size:10px;color:var(--fg-dim);margin-left:auto">Status as of Oct 15, 2026</span>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  if (!cur || cur === 'light') root.setAttribute('data-theme', 'dark');
+  else root.setAttribute('data-theme', 'light');
+}
+</script>
